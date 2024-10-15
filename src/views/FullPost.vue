@@ -1,6 +1,7 @@
 <script setup>
 import AvatarIcon from "@/components/AvatarIcon.vue";
 import DataLoading from "@/components/DataLoading.vue";
+import { Toaster, toast } from "vue-sonner";
 </script>
 <script>
 export default {
@@ -17,11 +18,17 @@ export default {
   },
   async created() {
     const postId = this.$route.params.id;
-
-    const postResponse = await fetch(
-      `https://jsonplaceholder.typicode.com/posts/${postId}`
-    );
-    this.post = await postResponse.json();
+    try {
+      const postResponse = await fetch(
+        `https://jsonplaceholder.typicode.com/posts/${postId}`
+      );
+      this.post = await postResponse.json();
+      if (!postResponse.ok) {
+        toast.error("Пост не найден");
+      }
+    } catch {
+      toast.error("Пост не найден");
+    }
 
     const userResponse = await fetch(
       `https://jsonplaceholder.typicode.com/users/${this.post.userId}`
@@ -42,6 +49,7 @@ export default {
           name: this.commentName,
           body: this.commentBody,
         });
+        toast("Комментарий отправлен!");
         this.commentEmail = "";
         this.commentName = "";
         this.commentBody = "";
@@ -57,6 +65,7 @@ export default {
   </nav>
   <main v-if="isLoading">
     <DataLoading />
+    <Toaster position="bottom-right" />
   </main>
   <main v-else>
     <h1 class="title">{{ post.title }}</h1>
@@ -94,6 +103,7 @@ export default {
       ></textarea>
       <button type="button" @click="submitComment">Добавить комментарий</button>
     </form>
+    <Toaster position="bottom-right" />
   </main>
 </template>
 
@@ -109,12 +119,12 @@ export default {
 .post-content
   display: flex
   gap: 8px
+  align-items: center
 .post-body
   margin-top: 16px
 .post-author
   text-align: center
-// .author
-//   margin-bottom: 8px
+  margin-bottom: 4px
 .text-comments
   margin-top: 18px
 .comments
@@ -132,11 +142,10 @@ export default {
       margin-bottom: 5px
       border-bottom: solid 1px #ccc
       display: inline-block
-
 .form
   max-width: 600px
   margin: 20px auto
-  padding: 20px
+  padding: 15px
   border: 1px solid black
   border-radius: 8px
   outline: none
@@ -145,17 +154,16 @@ export default {
   gap: 10px
   .form-name, .form-email
     border: 1px solid #ccc
-    border-radius: 2px
+    border-radius: 4px
     outline: none
-    padding: 4px 8px
+    padding: 6px 12px
     font: inherit
     font-size: 16px
-    max-width: 150px
+    max-width: 190px
   .form-name:focus, .form-email:focus,.form-body:focus
     outline: 1px solid black
   .form-body
-    width: 100%
-    padding: 4px
+    padding: 6px 12px
     margin-bottom: 15px
     border: 1px solid #ccc
     border-radius: 4px
@@ -163,7 +171,6 @@ export default {
     font: inherit
     outline: none
     resize: none
-
 button
   border: 1px solid #ccc
   border-radius: 4px
@@ -175,8 +182,6 @@ button
   max-width: 210px
   margin: 0 auto
   font: inherit
-
-/* Стили при наведении на кнопку */
 button:hover
   border: 1px solid black
 </style>

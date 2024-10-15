@@ -27,7 +27,7 @@
   width: 80px;
   height: 80px;
   display: flex;
-  margin-top: 48vh;
+  margin-top: 40vh;
 }
 .lds-grid div {
   position: absolute;
